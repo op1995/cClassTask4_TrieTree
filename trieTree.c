@@ -181,7 +181,7 @@ void zeroOut(char* zeroMe, int length){
 
 int main(int argc, char const *argv[]){
 
-    if(argc<2){
+    if(argc<1){
         printf("Please use this program the intended way. Usage - give me a list of words. if the first argument is r, I will print the in reverse order.");
         exit(-1);
     }
