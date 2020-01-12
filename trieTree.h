@@ -19,6 +19,8 @@ void printYourself(node* nodeToPrint, char* stringToPrint);
 
 void printYourChildren(node* nodeToIterateOver, char* stringUntillNow);
 
+void zeroOut(char* zeroMe, int length);
+
 
 
 #endif /* TRIETREE_H_ */
