@@ -182,7 +182,10 @@ int main(int argc, char const *argv[]){
     char currentChar = currentCharInt;
     while(currentCharInt!=EOF){
         currentCharInt = fgetc(stdin);
-        if (currentCharInt==32 || currentCharInt==-1){// current char is space. Next word! OR current char is EOF.
+        // printf("currentCharInt = %d\n",currentCharInt);
+        // printf("currentChar = %c\n",currentCharInt);
+
+        if (currentCharInt==32 || currentCharInt==-1 || currentCharInt==10){// current char is space. Next word! OR current char is EOF. OR current char is newLine
             // printf("\ncurrentCharInt==32 OR -1\n");
             // printf("\n");
             // printf("slaveNode->counter = %d\n",slaveNode->counter);
