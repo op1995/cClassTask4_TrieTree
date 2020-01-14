@@ -9,6 +9,8 @@ bool goBackwards = false;
 int firstLetter = 0;
 int addToCounter = 1;
 int longestWord = 0;
+node* head;
+
 
 node* getNewNode(){
     node* newNode = (node*) malloc(sizeof(node));
@@ -16,6 +18,24 @@ node* getNewNode(){
     newNode->isLeaf=true;
     for (size_t i = 0; i < CHAR_SIZE; i++) {newNode->characterArray[i] = NULL;}
     return newNode;
+}
+
+node* insertNewLetter(node* startNode, char character){ //NOTE - unlike insertNewWord method, this method changes the node* (pointer) it recives.
+        if(character<65 || character>122 || (character>90 && character<97)){ //non Alphabet character. Should be skipped.
+            
+            return NULL;
+        }
+
+        if(character>=65 && character<=90){character = character + 32;} //change upper case letter to lower case
+
+        if(startNode->characterArray[character-'a']==NULL){startNode->characterArray[character - 'a'] = getNewNode();} //if the next node doesn't exist, create it
+        startNode->isLeaf=false;
+        // printf("before - startNode->isLeaf = %d\n",startNode->isLeaf);
+        // startNode = startNode->characterArray[character - 'a']; //go to the next node!
+        // printf("after - startNode->isLeaf = %d\n",startNode->isLeaf);
+
+        return startNode->characterArray[character - 'a'];
+        
 }
 
 void insertNewWord(node* head, char* str){
@@ -65,7 +85,7 @@ void printYourself(node* nodeToPrint, char* stringToPrint){
             printYourChildren(nodeToPrint, stringToPrint);
         }
 
-        if(amount!=0){
+        if(amount>0){
 
             printf("%s\t%d\n", stringToPrint, amount);
         }
@@ -80,9 +100,7 @@ void printYourself(node* nodeToPrint, char* stringToPrint){
 void printYourChildren(node* nodeToIterateOver, char* stringUntillNow){
     for (size_t i = firstLetter; i!=CHAR_SIZE && i!=-1; i = i+addToCounter)
         {
-            if(i==-1){
-                printf("Actually just checking if it gets here. i=-1 in printYourChildren\nShould probably free nextWord here as well\n");
-            }
+
             char nextWord[longestWord];
             zeroOut(nextWord, longestWord); //initialize the array
            
@@ -96,8 +114,8 @@ void printYourChildren(node* nodeToIterateOver, char* stringUntillNow){
             char nextLetter = i+97; //+97 to ASCII table (0+97-->97-->a)
 
             nextWord[strlen(stringUntillNow)] = nextLetter; //add the next letter
-
-            printYourself(nodeToIterateOver->characterArray[i], nextWord);
+            // printf("in printyourchildren - before last if\n");
+            if(nodeToIterateOver->characterArray[i]){printYourself(nodeToIterateOver->characterArray[i], nextWord);}
             
         }
         
@@ -112,51 +130,114 @@ void zeroOut(char* zeroMe, int length){
     
 }
 
+void initNode(node* nodeToInit){
+    nodeToInit->counter=0;
+    nodeToInit->isLeaf=false;
+    for (size_t i = 0; i < CHAR_SIZE; i++) {nodeToInit->characterArray[i] = NULL;}}
+
+
+// char *inputString(FILE* fp, size_t size){
+
+
+
+// }
+
 int main(int argc, char const *argv[]){
 
-    if(argc==0){
-        printf("Please use this program the intended way. Usage - give me a list of words. if the first argument is r, I will print the in reverse order.");
-        exit(-1);
-    }
+    // node* head = (node*) malloc(sizeof(node)); //create head node of the Trie tree
+    head = (node*) malloc(sizeof(node)); //create head node of the Trie tree
+    initNode(head);
+    head->counter=-1; //this is to make the head node unique - it will be the only one to have -1 as value. This is used to distinguish it when later checking if slaveNode is currently on the head node or not.
+    node* slaveNode = head;
+
+    //the below code was to check for enough args given. This doesn't work if the input is from file, like the test file we were given, so this is part is canceled.
+
+    // if(argc==0){
+    //     printf("Please use this program the intended way. Usage - give me a list of words. if the first argument is r, I will print the in reverse order.");
+    //     exit(-1);
+    // }
 
 
-    longestWord = strlen(argv[1]);
-    for (size_t i = 1; i < argc; i++) //look for the longest word in the given input
-    {
-        int currentWordLength = strlen(argv[i]);
-        if(currentWordLength>longestWord){longestWord = currentWordLength;}
-    }
-    longestWord++; //to allow place for '\0' in the answer array
+
+
+    // longestWord = strlen(argv[1]);
+    // for (size_t i = 1; i < argc; i++) //look for the longest word in the given input
+    // {
+    //     int currentWordLength = strlen(argv[i]);
+    //     if(currentWordLength>longestWord){longestWord = currentWordLength;}
+    // }
+    // longestWord++; //to allow place for '\0' in the answer array
+    
+    // char *m;
+    // m = inputString(stdin, 10);
+
+
     
 
-
     
 
-    node* head = (node*) malloc(sizeof(node)); //create head node of the Trie tree
-    head->counter=0;
-    head->isLeaf=false;
-    for (size_t i = 0; i < CHAR_SIZE; i++) {head->characterArray[i] = NULL;}
+    
+    int currentWordLength = 0;
+    int currentCharInt = 35; //arbitrary value
+    char currentChar = currentCharInt;
+    while(currentCharInt!=EOF){
+        currentCharInt = fgetc(stdin);
+        if (currentCharInt==32 || currentCharInt==-1){// current char is space. Next word! OR current char is EOF.
+            // printf("\ncurrentCharInt==32 OR -1\n");
+            // printf("\n");
+            // printf("slaveNode->counter = %d\n",slaveNode->counter);
 
-    char* currentWord = (char*) malloc(sizeof(char)*longestWord);
-    int firstWordIndex = 1;
-    if(strlen(argv[1])==1){
-        if(strcmp(argv[1], "r")==0){
-            firstLetter = CHAR_SIZE-1; 
-            goBackwards = true; 
-            addToCounter = -1; //values that change the order of printing the words of the tree
-            firstWordIndex++; //if the order 'r' was given' it's a command. Don't insert it to the Trie.    
+            if((slaveNode->counter)!=-1){//only if the slaveNode isn't pointing at the head node, increase the counter (end of word) and set slaveNode back to head.
+                // printf("end of word. increasin counter of node\n");
+                // printf("slaveNode->counter++\n");
+                slaveNode->counter++;
+                slaveNode = head;
+            }
+            if (currentWordLength>longestWord){longestWord = currentWordLength;} //if needed, update longest word found.
+            currentWordLength = 0; //reset currentWordLength 
         }
+        else{//not space, advance along the tree.
+            // printf("%c",currentCharInt);
+            currentChar = currentCharInt;
+            // printf("before - slaveNode->isLeaf = %d\n",slaveNode->isLeaf);
+            node* nextNode = insertNewLetter(slaveNode, currentChar);
+            if(nextNode){//this is to protect the case of NULL returns from function.
+                slaveNode=nextNode;
+                currentWordLength++;
+            }
+            // slaveNode = insertNewLetter(slaveNode, currentChar);
+            // printf("after - slaveNode->isLeaf = %d\n",slaveNode->isLeaf);
+            
+        }
+        // printf("end of while loop\n");
+    }//end while (inserting all the input to the Trie)
+
+    // char* currentWord = (char*) malloc(sizeof(char)*longestWord);
+    // int firstWordIndex = 1;
+    if(argc>1){ //only if this condition is TRUE it is possible to get the r command
+        if(strlen(argv[1])==1){
+            if(strcmp(argv[1], "r")==0){
+                firstLetter = CHAR_SIZE-1; 
+                goBackwards = true; 
+                addToCounter = -1; //values that change the order of printing the words of the tree
+                // firstWordIndex++; //if the order 'r' was given' it's a command. Don't insert it to the Trie.    
+            }
+        }
+
     }
-    for (size_t i = firstWordIndex; i < argc; i++)
-    {
-        zeroOut(currentWord,longestWord); //zeroOut the currentWord string before reusing it
-        strcpy(currentWord, argv[i]);
-        insertNewWord(head, currentWord);
-    }
-    free(currentWord);
+    
+    // for (size_t i = firstWordIndex; i < argc; i++)
+    // {
+    //     zeroOut(currentWord,longestWord); //zeroOut the currentWord string before reusing it
+    //     strcpy(currentWord, argv[i]);
+    //     insertNewWord(head, currentWord);
+    // }
+    // free(currentWord);
+    longestWord = longestWord +1; // to account for \0 
     char* giveToPrintAsPointer = (char*) malloc(sizeof(char)*longestWord);
     zeroOut(giveToPrintAsPointer,longestWord);
     printYourself(head, giveToPrintAsPointer);
+    // printf("after printYourself in main\n");
 
     if(giveToPrintAsPointer) {free(giveToPrintAsPointer);}
     node* headCopy = head;

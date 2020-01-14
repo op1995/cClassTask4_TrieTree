@@ -11,6 +11,8 @@ typedef struct node {
 
 node* getNewNode();
 
+node* insertNewLetter(node* startNode, char character);
+
 void insertNewWord(node* head, char* str);
 
 void killTree(node* killMe);
@@ -21,6 +23,7 @@ void printYourChildren(node* nodeToIterateOver, char* stringUntillNow);
 
 void zeroOut(char* zeroMe, int length);
 
+void initNode(node* nodeToInit);
 
 
 #endif /* TRIETREE_H_ */
