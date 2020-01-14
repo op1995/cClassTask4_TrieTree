@@ -13,8 +13,6 @@ node* getNewNode();
 
 node* insertNewLetter(node* startNode, char character);
 
-void insertNewWord(node* head, char* str);
-
 void killTree(node* killMe);
 
 void printYourself(node* nodeToPrint, char* stringToPrint);
