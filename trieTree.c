@@ -14,6 +14,10 @@ node* head;
 
 node* getNewNode(){
     node* newNode = (node*) malloc(sizeof(node));
+    if (newNode==NULL){
+    	printf("Error in getNewNode malloc. Returning.");
+    	return NULL;
+    }
     newNode->counter=0;
     newNode->isLeaf=true;
     for (size_t i = 0; i < CHAR_SIZE; i++) {newNode->characterArray[i] = NULL;}
@@ -73,7 +77,8 @@ void printYourChildren(node* nodeToIterateOver, char* stringUntillNow){
     for (size_t i = firstLetter; i!=CHAR_SIZE && i!=-1; i = i+addToCounter)
         {
 
-            char nextWord[longestWord];
+            // char nextWord[longestWord];
+            char* nextWord = (char*) malloc(sizeof(char)*longestWord); 
             zeroOut(nextWord, longestWord); //initialize the array
 
             if(strlen(stringUntillNow)){strcpy(nextWord, stringUntillNow);} //only copy the string uptill now if it isn't empty
@@ -83,6 +88,8 @@ void printYourChildren(node* nodeToIterateOver, char* stringUntillNow){
             nextWord[strlen(stringUntillNow)] = nextLetter; //add the next letter
             if(nodeToIterateOver->characterArray[i]){printYourself(nodeToIterateOver->characterArray[i], nextWord);}
             
+            if(nextWord){free(nextWord);}
+
         }
         
     
@@ -105,6 +112,10 @@ void initNode(node* nodeToInit){
 int main(int argc, char const *argv[]){
 
     head = (node*) malloc(sizeof(node)); //create head node of the Trie tree
+    if(head==NULL){
+    	printf("Error in main, malloc for head node. Returning");
+    	return -1;
+    }
     initNode(head);
     head->counter=-1; //this is to make the head node unique - it will be the only one to have -1 as value. This is used to distinguish it when later checking if slaveNode is currently on the head node or not.
     node* slaveNode = head;
@@ -151,6 +162,10 @@ int main(int argc, char const *argv[]){
     
     longestWord = longestWord +1; // to account for \0 
     char* giveToPrintAsPointer = (char*) malloc(sizeof(char)*longestWord);
+    if (giveToPrintAsPointer == NULL){
+    	printf("Error in main, malloc for char* giveToPrintAsPointer. Returning");
+    	return -1;
+    }
     zeroOut(giveToPrintAsPointer,longestWord);
     printYourself(head, giveToPrintAsPointer);
 
